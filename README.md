@@ -12,5 +12,5 @@ There are 3 parts:
   [Labeling instructions](https://github.com/tprlab/squats/pretrain)
 - Neural network - an app to train a CNN on the pictures
 
-  [Train CNN instructions]https://github.com/tprlab/squats/nn)
+  [Train CNN instructions](https://github.com/tprlab/squats/nn)
 
