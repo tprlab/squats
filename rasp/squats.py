@@ -1,6 +1,5 @@
 import squeue
 import threading
-import detect
 import conf
 import cv2 as cv
 import prepare
@@ -8,6 +7,12 @@ import logging
 import os
 import os.path as fs
 import sys
+
+if __name__ == '__main__':
+  logging.basicConfig(filename="logs/squats.log",level=logging.DEBUG, format='%(asctime)s.%(msecs)03d %(threadName)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
+
+import detect
 
 done = False
 sq_id = None
