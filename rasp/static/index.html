@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Squats detector</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Squats Detector</h1>
+      <div class="row mb-2">
+        <button id="start_btn" type="button" class="btn btn-success m-2">Start</button>
+        <button id="stop_btn" type="button" class="btn btn-danger m-2" disabled>Stop</button>
+
+      </div>
+      <div class="row mb-2">
+        <div id="req-alert" class="collapse alert alert-danger alert-dismissible fade" role="alert">
+          <strong>Request failed</strong> Try again later
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div>
+      <div class="row mb-2">
+        <button type="button" class="btn btn-primary m-2">
+          Squats <span id="sqcnt" class="badge badge-light"></span>
+        </button>
+
+        <button type="button" class="btn btn-secondary m-2">
+          Frames processed <span id="frmcnt" class="badge badge-light"></span>
+        </button>
+      </div>
+      <div class="row">
+        <img class="img-fluid" src="/stream"/>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script>
+    var timerId
+    $('#start_btn').on('click', function(event) {
+      event.preventDefault()
+      $.post("/start").fail(() => { 
+        $('#req-alert').addClass('show')
+      }).done(() => {
+        $('#start_btn').prop('disabled', true)
+        $('#stop_btn').prop('disabled', false)
+        timerId = setInterval(() => {
+          $.ajax({
+            url: '/status',
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+              if (!data) {
+                console.log("Invalid data", data)
+                clearInterval(timerId)
+                return
+              }
+              status = data["status"]
+              if (status != 0) {
+                console.log("Terminal status", status)
+                clearInterval(timerId)
+              } 
+              console.log("Recv", data["squats"], data["frames"], data["processed"])
+              $('#sqcnt').text(data["squats"])
+              $('#frmcnt').text(data["processed"] + " of " + data["frames"])
+            }
+          });
+        }, 500)
+        console.log("Started timer", timerId)
+      })  
+    });
+
+    $('#stop_btn').on('click', function(event) {
+      event.preventDefault()
+      $.post("/stop")
+      $('#start_btn').prop('disabled', false)
+      $('#stop_btn').prop('disabled', true)
+
+    });
+
+    $("#req-alert").on("close.bs.alert", () => {
+      $('#req-alert').removeClass('show')
+      return false;
+    });
+
+
+    </script>
+  </body>
+</html>
