@@ -17,10 +17,6 @@ from keras.preprocessing.image import ImageDataGenerator
 size = 64
 
 def createModel(input_shape, cls_n ):
-    model = Sequential()
-
-    activation = "relu"
-
     model = Sequential([
         Convolution2D(8,(5,5), activation='relu', input_shape=input_shape),
         MaxPooling2D(),
